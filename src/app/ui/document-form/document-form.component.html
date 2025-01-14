@@ -1,0 +1,68 @@
+<h2 mat-dialog-title>Реквезиты Входящего Документа</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="flex flex-col gap-2">
+    <mat-form-field appearance="fill">
+        <mat-label>Рег №</mat-label>
+        <input matInput type="text" formControlName="regNumber">
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Дата рег</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="regDate">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+        <mat-label>№ исх. док-та </mat-label>
+        <input matInput type="date" formControlName="docNumber">
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+        <mat-label>Дата исх. док-та  </mat-label>
+        <input matInput type="date" formControlName="docDate">
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Форма доставки</mat-label>
+      <mat-select formControlName="deliveryType">
+        <mat-option *ngFor="let type of deliveryTypes" [value]="type">
+          {{ type }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+        <mat-label>Форма доставки</mat-label>
+        <mat-select formControlName="correspondent">
+          <mat-option *ngFor="let type of corresponendsList" [value]="type">
+            {{ type }}
+          </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+        <mat-label>Тема</mat-label>
+        <input matInput type="text" formControlName="subject">
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+        <mat-label>Описание </mat-label>
+        <input matInput type="text" formControlName="description">
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+        <mat-label>Срок исполнения  </mat-label>
+        <input matInput type="date" formControlName="dueDate"  format="dd/MM/yyyy">
+    </mat-form-field>
+    <mat-slide-toggle formControlName="isAccessible">
+        Доступ 
+    </mat-slide-toggle>
+    <mat-slide-toggle formControlName="isUnderControl">
+        Контроль
+    </mat-slide-toggle>
+    <div>
+        <label>Файл (PDF, Doc, Docx до 1МБ)</label>
+        <input type="file" (change)="onFileSelected($event)">
+    </div>
+    <mat-hint *ngIf="fileError" style="color:red;">
+        {{ fileError }}
+    </mat-hint>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="true">Закрыть</button>
+  <button type="submit" mat-raised-button color="primary" (click)="onSave()">Сохранить</button>
+</mat-dialog-actions>
