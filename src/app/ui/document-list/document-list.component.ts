@@ -81,7 +81,6 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
         {
             width: '600px',
             height: '600px',
-            data: { title: 'Document Form' }
         });
         dialogWindow.componentInstance.popupMode = popupMode;
         dialogWindow.componentInstance.documentId = doc?.id ?? null;
@@ -93,13 +92,15 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     }
     
     openFile(doc: DocumentData): void {
-        // If doc.fileUrl is a direct link, you can do:
-        if (doc.fileUrl) {
-          window.open(doc.fileUrl, '_blank');
+        if (doc.filePath) {
+          // Construct the full URL to the file
+          const fileUrl = `http://localhost:3000${doc.filePath}`; 
+          window.open(fileUrl, '_blank'); // Opens the file in a new browser tab
         } else {
           alert('No file attached or file URL not set.');
         }
     }
+      
 
     deleteDocument(id: number | undefined) {
         if (!id) return;

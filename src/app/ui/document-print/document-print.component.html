@@ -1,0 +1,22 @@
+<div class="print-container">
+    <h2>Реквизиты документа</h2>
+    <div>
+      <p><strong>Рег. №:</strong> {{ data.regNumber }}</p>
+      <p><strong>Дата рег.:</strong> {{ data.regDate | date }}</p>
+      <p><strong>№ исх. док-та:</strong> {{ data.docNumber }}</p>
+      <p><strong>Дата исх. док-та:</strong> {{ data.docDate | date }}</p>
+      <p><strong>Тип доставки:</strong> {{ data.deliveryType }}</p>
+      <p><strong>Корреспондент:</strong> {{ data.correspondent }}</p>
+      <p><strong>Тема:</strong> {{ data.subject }}</p>
+      <p><strong>Описание:</strong> {{ data.description }}</p>
+      <p><strong>Срок исполнения:</strong> {{ data.dueDate | date }}</p>
+      <p><strong>Доступен:</strong> {{ data.isAccessible ? 'Да' : 'Нет' }}</p>
+      <p><strong>Под контролем:</strong> {{ data.isUnderControl ? 'Да' : 'Нет' }}</p>
+    </div>
+  
+    <div class="buttons">
+      <button mat-raised-button color="primary" (click)="onPrint()">Печать</button>
+      <button mat-raised-button color="warn" (click)="onClose()">Закрыть</button>
+    </div>
+  </div>
+  

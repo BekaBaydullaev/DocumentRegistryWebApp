@@ -12,5 +12,5 @@ export interface DocumentData {
     isAccessible: boolean;
     isUnderControl: boolean;
     fileName?: string;
-    fileUrl?: string;    // full URL if stored somewhere accessible
+    filePath?: string;    // full URL if stored somewhere accessible
   }

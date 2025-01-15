@@ -1,0 +1,6 @@
+
+.field-error .mat-form-field-outline,
+.field-error .mat-form-field-underline {
+  border-color: red !important;
+}
+

@@ -3,6 +3,11 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { DocumentService } from '../../service/document-registry.service';
 import { MaterialModule } from '../../shared-components/material.module';
 import { CommonModule } from '@angular/common';
+import { mustContainDigitValidator, dueDateNotBeforeRegDateValidator } from '../../shared-components/custom-validators';
+import { dateNotInFutureValidator } from '../../shared-components/custom-validators/date-not-in-fututre.validator';
+import { DocumentPrintComponent } from '../document-print/document-print.component';
+import { MatDialog } from '@angular/material/dialog';
+import { DocumentData } from '../../data/document-data.interface';
 
 @Component({
   selector: 'app-document-form',
@@ -18,14 +23,18 @@ export class DocumentFormComponent implements OnInit {
   @Output() closeEmitter = new EventEmitter<boolean>();
   @Input() popupMode!: number;
   @Input() documentId!: number | null;
+
+  readonly VALID_FORMATS = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+
   protected readonly documentService = inject(DocumentService);
   protected readonly formBuilder = inject(FormBuilder);
-  currentDate!: Date;
+  protected readonly dialog = inject(MatDialog);
 
-  ngOnInit(): void {
-    this.initForm();
-    this.currentDate = new Date();
-  }
+  isSaved?: boolean;
+  currentDate!: Date;
+  fileError: string | null = null;
+  uploadedFilePath: string | null = null;
+  uploadedFileName: string | null = null;
   form!: FormGroup;
   corresponendsList: string[] = [
     'ЦБ', 
@@ -37,34 +46,52 @@ export class DocumentFormComponent implements OnInit {
     'Курьер', 
     'Электронная почта'
   ];
+  selectedFile?: File;
+
+  ngOnInit(): void {
+    this.initForm();
+    this.patchValues();
+    this.currentDate = new Date();
+  }
 
   initForm() {
     this.form = this.formBuilder.group({
-      regNumber: new FormControl('', Validators.required),
-      regDate: new FormControl(this.currentDate, Validators.required),
-      docNumber: new FormControl(),
-      docDate: new FormControl(),
-      deliveryType: new FormControl(),
-      correspondent: new FormControl('', Validators.required),
-      subject: new FormControl('', [Validators.required, Validators.maxLength(100)]),
-      description: new FormControl('', Validators.maxLength(1000)),
-      dueDate: new FormControl(),
-      isAccessible: new FormControl(false),
-      isUnderControl: new FormControl(false),
-      file: new FormControl(null)
+      regNumber: ['', [Validators.required, mustContainDigitValidator()]],
+      regDate: [this.currentDate, [Validators.required]],
+      docNumber: ['', mustContainDigitValidator()], // Optional field with digit constraint
+      docDate: [null, dateNotInFutureValidator],
+      deliveryType: [null],
+      correspondent: ['', Validators.required],
+      subject: ['', [Validators.required, Validators.maxLength(100)]],
+      description: ['', Validators.maxLength(1000)],
+      dueDate: [null],
+      isAccessible: [false],
+      isUnderControl: [false],
+      fileName: [null],
+      filePath: [null],
+    }, {
+      validators: [dueDateNotBeforeRegDateValidator()]
     });
   }
 
-  fileError: string | null = null;
+  patchValues() {
+    if (this.documentId) {
+      this.documentService.getDocumentById(this.documentId).subscribe({
+        next: (doc) => {
+          this.form.patchValue(doc);
+        },
+        error: (err) => console.error('Failed to load document', err)
+      });
+    }
+  }
+  
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
 
     const file = input.files[0];
-    const validFormats = ['application/pdf','application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-    const isValidFormat = validFormats.includes(file.type);
+    const isValidFormat = this.VALID_FORMATS.includes(file.type);
     const isValidSize = file.size <= 1024 * 1024; // 1 MB
 
     if (!isValidFormat && !isValidSize) {
@@ -75,16 +102,110 @@ export class DocumentFormComponent implements OnInit {
       this.fileError = 'Размер файла превышает 1Мб';
     } else {
       this.fileError = null;
-      // this.form.patchValue({ file });
+      this.selectedFile = file;
+      this.uploadFile(file);
     }
   }
 
+  uploadFile(file: File) {
+    this.documentService.uploadFile(file).subscribe({
+      next: (res) => {
+        this.form.patchValue({
+          fileName: res.fileName,
+          filePath: res.filePath
+        });
+      },
+      error: (err) => {
+        this.fileError = 'Ошибка загрузки файла: ' + err.message;
+      }
+    });
+  }
+
   onSave() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      console.warn('Form invalid. Errors:', this.form.errors, this.form.value);
+      return;
+    }
+
     console.log('Form submitted', this.form.value);
+    // Proceed with create or update logic
+    if (this.documentId) {
+      this.updateDocument();
+    } else {
+      this.createDocument();
+    }
+  }
+
+  createDocument() {
+    this.documentService.addDocument(this.form.value).subscribe({
+      next: (res) => {
+        console.log('Document created:', res);
+        this.isSaved = true;
+        alert('Документ успешно сохранён!');
+        this.onClose();
+      },
+      error: (err) => {
+        console.error('Error creating document:', err);
+        alert('Ошибка при сохранении документа');
+      }
+    });
+  }
+
+  updateDocument() {
+    this.documentService.updateDocument(this.documentId!, this.form.value).subscribe({
+      next: (res) => {
+        console.log('Document updated:', res);
+        this.isSaved = true;
+        alert('Документ успешно обновлён!');
+        this.onClose();
+      },
+      error: (err) => {
+        console.error('Error updating document:', err);
+        alert('Ошибка при обновлении документа');
+      }
+    });
+  }
+
+  onPrint(): void {
+    const documentData = this.prepareDocumentDataForPrint();
+  
+    this.dialog.open(DocumentPrintComponent, {
+      width: '600px',
+      data: documentData
+    });
   }
 
   onClose() {
     this.closeEmitter.emit(true);
   }
 
+
+  prepareDocumentDataForPrint(): any {
+    const formValues = this.form.value;
+  
+    return {
+      regNumber: formValues.regNumber,
+      regDate: this.formatDate(formValues.regDate),
+      docNumber: formValues.docNumber || '—',
+      docDate: this.formatDate(formValues.docDate),
+      deliveryType: formValues.deliveryType || 'Не указан',
+      correspondent: formValues.correspondent || 'Не указан',
+      subject: formValues.subject,
+      description: formValues.description || 'Нет описания',
+      dueDate: this.formatDate(formValues.dueDate),
+      isAccessible: formValues.isAccessible ? 'Да' : 'Нет',
+      isUnderControl: formValues.isUnderControl ? 'Да' : 'Нет'
+    };
+  }
+  
+  formatDate(date: any): string {
+    if (!date) {
+      return '—'; // Default for missing dates
+    }
+  
+    const parsedDate = new Date(date);
+    return parsedDate.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+  
 }

@@ -35,4 +35,14 @@ import { DocumentData } from "../data/document-data.interface";
     deleteDocument(id: number): Observable<{ message: string }> {
       return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
     }
+
+    // UPLOAD a file
+    uploadFile(file: File): Observable<{ fileName: string; filePath: string }> {
+      const formData = new FormData();
+      formData.append('file', file);
+      return this.http.post<{ fileName: string; filePath: string }>(
+        'http://localhost:3000/api/upload',
+        formData
+      );
+    }
   }
