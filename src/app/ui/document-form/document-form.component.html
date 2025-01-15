@@ -89,8 +89,19 @@
     </mat-slide-toggle>
     <div>
         <label>Файл (PDF, Doc, Docx до 1МБ)</label>
-        <input type="file" (change)="onFileSelected($event)">
-    </div>
+      
+        <!-- Existing File Display -->
+        <div *ngIf="form.value.fileName">
+          <p><strong>Файл:</strong> {{ form.value.fileName }}</p>
+          <a [href]="'http://localhost:3000' + form.value.filePath" target="_blank">Просмотр файла</a>
+        </div>
+      
+        <!-- File Upload Input -->
+        <input type="file" (change)="onFileSelected($event)" />
+      
+        <!-- Error Message -->
+        <p *ngIf="fileError" style="color: red;">{{ fileError }}</p>
+      </div>
     <mat-hint *ngIf="fileError" style="color:red;">
         {{ fileError }}
     </mat-hint>

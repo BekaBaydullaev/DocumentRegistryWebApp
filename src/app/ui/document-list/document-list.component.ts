@@ -8,6 +8,7 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatDialog } from "@angular/material/dialog";
 import { DocumentFormComponent } from "../document-form/document-form.component";
+import { DocumentPrintComponent } from "../document-print/document-print.component";
 
 
 @Component({
@@ -33,6 +34,7 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
         'docDate',
         'correspondent',
         'subject',
+        'actions'
     ]
 
     constructor() {
@@ -63,13 +65,6 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
         this.openDialogWindow(0);
     }
     
-    printRegistry(): void {
-
-        console.log('Printing...');
-
-        window.open('/print-registry', '_blank');
-
-    }
     
     editDocument(doc: DocumentData): void {
         this.openDialogWindow(1, doc);
@@ -100,19 +95,58 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
           alert('No file attached or file URL not set.');
         }
     }
+
+    openPrintDialog(doc: DocumentData): void {
+    const documentData = this.prepareDocumentDataForPrint(doc);
+    debugger
+  
+    this.dialog.open(DocumentPrintComponent, {
+      width: '800px',
+      height: '800px',
+      data: documentData
+    });
+  }
       
 
     deleteDocument(id: number | undefined) {
         if (!id) return;
         if (confirm('Are you sure you want to delete this document?')) {
-          this.documentService.deleteDocument(id).subscribe({
+            this.documentService.deleteDocument(id).subscribe({
             next: (res) => {
-              console.log('Delete success', res);
-              // reload the list
-              this.loadDocuments();
+                console.log('Delete success', res);
+                // reload the list
+                this.loadDocuments();
             },
             error: (err) => console.error('Delete error', err)
-          });
+            });
         }
+    }
+
+    prepareDocumentDataForPrint(doc: DocumentData): any {
+        const formValues = doc;
+      
+        return {
+          regNumber: formValues.regNumber,
+          regDate: this.formatDate(formValues.regDate),
+          docNumber: formValues.docNumber || '—',
+          docDate: this.formatDate(formValues.docDate),
+          deliveryType: formValues.deliveryType || 'Не указан',
+          correspondent: formValues.correspondent || 'Не указан',
+          subject: formValues.subject,
+          description: formValues.description || 'Нет описания',
+          dueDate: this.formatDate(formValues.dueDate),
+          isAccessible: formValues.isAccessible ? 'Да' : 'Нет',
+          isUnderControl: formValues.isUnderControl ? 'Да' : 'Нет',
+          filePath: formValues.filePath
+        };
+    }
+      
+    formatDate(date: any): string {
+        if (!date) {
+            return '—'; // Default for missing dates
+        }
+        
+        const parsedDate = new Date(date);
+        return parsedDate.toLocaleDateString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' });
     }
 }

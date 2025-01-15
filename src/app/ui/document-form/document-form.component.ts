@@ -169,9 +169,11 @@ export class DocumentFormComponent implements OnInit {
 
   onPrint(): void {
     const documentData = this.prepareDocumentDataForPrint();
+    debugger
   
     this.dialog.open(DocumentPrintComponent, {
-      width: '600px',
+      width: '800px',
+      height: '800px',
       data: documentData
     });
   }
@@ -195,7 +197,8 @@ export class DocumentFormComponent implements OnInit {
       description: formValues.description || 'Нет описания',
       dueDate: this.formatDate(formValues.dueDate),
       isAccessible: formValues.isAccessible ? 'Да' : 'Нет',
-      isUnderControl: formValues.isUnderControl ? 'Да' : 'Нет'
+      isUnderControl: formValues.isUnderControl ? 'Да' : 'Нет',
+      filePath: formValues.filePath
     };
   }
   
@@ -205,7 +208,7 @@ export class DocumentFormComponent implements OnInit {
     }
   
     const parsedDate = new Date(date);
-    return parsedDate.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' });
+    return parsedDate.toLocaleDateString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' });
   }
   
 }
