@@ -10,6 +10,17 @@
     margin: 5px 0;
   }
   
+  .file-container {
+    margin: 20px 0;
+    border: 1px solid #ccc;
+    padding: 10px;
+  }
+  
+  iframe {
+    border: none;
+    background: #fff;
+  }
+  
   /* Styles for printing */
   @media print {
     .buttons {
@@ -22,4 +33,3 @@
       width: 100%;
     }
   }
-  

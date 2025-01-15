@@ -26,6 +26,7 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     
     clickedRows = new Set<DocumentData>();
     dataSource = new MatTableDataSource<DocumentData>([]);
+    selectedRowIndex: number | null = null;
     displayedColumns: string[] = [
         'file',
         'regNumber',
@@ -37,21 +38,16 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
         'actions'
     ]
 
-    constructor() {
-        console.log("DocumentListComponent created");
-    }
+
     ngOnInit() {
-        
         this.loadDocuments();
     }
 
     ngAfterViewInit(): void {
-        // debugger;
         this.dataSource.sort = this.sort;
     }
     
     loadDocuments() {
-        
         this.documentService.getDocuments()
         .subscribe({
             next: (docs) => {
@@ -97,15 +93,14 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     }
 
     openPrintDialog(doc: DocumentData): void {
-    const documentData = this.prepareDocumentDataForPrint(doc);
-    debugger
-  
-    this.dialog.open(DocumentPrintComponent, {
-      width: '800px',
-      height: '800px',
-      data: documentData
-    });
-  }
+        const documentData = this.prepareDocumentDataForPrint(doc);
+    
+        this.dialog.open(DocumentPrintComponent, {
+        width: '800px',
+        height: '800px',
+        data: documentData
+        });
+    }
       
 
     deleteDocument(id: number | undefined) {
