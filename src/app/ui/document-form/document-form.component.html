@@ -31,8 +31,13 @@
     </mat-error>
   </mat-form-field>
     <mat-form-field appearance="fill">
-        <mat-label>Дата исх. док-та  </mat-label>
-        <input matInput type="date" formControlName="docDate">
+        <mat-label>Дата исх. док-та</mat-label>
+        <input matInput [matDatepicker]="pickerDocDate" formControlName="docDate">
+        <mat-datepicker-toggle matSuffix [for]="pickerDocDate"></mat-datepicker-toggle>
+        <mat-datepicker #pickerDocDate></mat-datepicker>
+        <mat-error *ngIf="form.get('docDate')?.hasError('futureDate')">
+          Дата не может быть в будущем
+        </mat-error>
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Форма доставки</mat-label>

@@ -1,4 +1,4 @@
-<h2>Document List (Material Table)</h2>
+<h2>Входящие документы</h2>
 
 <div style="margin-bottom: 16px;">
     <!-- Add button -->
@@ -46,7 +46,7 @@
       <!-- docDate -->
       <ng-container matColumnDef="docDate">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Дата исх. док-та </th>
-          <td mat-cell *matCellDef="let doc"> {{ doc.docDate }} </td>
+          <td mat-cell *matCellDef="let doc"> {{ doc.docDate | date: 'yyyy-MM-dd'  }} </td>
       </ng-container>
 
   <!-- Correspondent -->

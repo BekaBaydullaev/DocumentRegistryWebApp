@@ -4,7 +4,7 @@ import { DocumentService } from '../../service/document-registry.service';
 import { MaterialModule } from '../../shared-components/material.module';
 import { CommonModule } from '@angular/common';
 import { mustContainDigitValidator, dueDateNotBeforeRegDateValidator } from '../../shared-components/custom-validators';
-import { dateNotInFutureValidator } from '../../shared-components/custom-validators/date-not-in-fututre.validator';
+import { dateNotInFutureValidator } from '../../shared-components/custom-validators/date-not-in-future.validator';
 import { DocumentPrintComponent } from '../document-print/document-print.component';
 import { MatDialog } from '@angular/material/dialog';
 import { DocumentData } from '../../data/document-data.interface';
@@ -48,6 +48,12 @@ export class DocumentFormComponent implements OnInit {
   ];
   selectedFile?: File;
 
+  constructor() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    this.currentDate = today;
+  }
+
   ngOnInit(): void {
     this.initForm();
     this.patchValues();
@@ -57,9 +63,9 @@ export class DocumentFormComponent implements OnInit {
   initForm() {
     this.form = this.formBuilder.group({
       regNumber: ['', [Validators.required, mustContainDigitValidator()]],
-      regDate: [this.currentDate, [Validators.required]],
-      docNumber: ['', mustContainDigitValidator()], // Optional field with digit constraint
-      docDate: [null, dateNotInFutureValidator],
+      regDate: [new Date(), [Validators.required]],
+      docNumber: ['', mustContainDigitValidator()], 
+      docDate: [null, [dateNotInFutureValidator]],
       deliveryType: [null],
       correspondent: ['', Validators.required],
       subject: ['', [Validators.required, Validators.maxLength(100)]],
@@ -169,7 +175,6 @@ export class DocumentFormComponent implements OnInit {
 
   onPrint(): void {
     const documentData = this.prepareDocumentDataForPrint();
-    debugger
   
     this.dialog.open(DocumentPrintComponent, {
       width: '800px',
