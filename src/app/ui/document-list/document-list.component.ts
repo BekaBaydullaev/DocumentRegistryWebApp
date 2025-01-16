@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from "@angular/core";
 import { DocumentService } from "../../service/document-registry.service";
 import { DocumentData } from "../../data/document-data.interface";
 import { CommonModule } from "@angular/common";
@@ -22,7 +22,6 @@ import { DocumentPrintComponent } from "../document-print/document-print.compone
 export class DocumentListComponent implements OnInit, AfterViewInit {
     @ViewChild(MatSort) sort!: MatSort;
     @ViewChild(MatPaginator) paginator!: MatPaginator;
-    @ViewChild('keyContainer') keyContainer!: HTMLElement;
     protected readonly documentService = inject(DocumentService);
     protected readonly dialog = inject(MatDialog);
     
@@ -48,8 +47,6 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit(): void {
         this.dataSource.sort = this.sort;
-        // Auto-focus the container so ArrowUp/ArrowDown work immediately
-        setTimeout(() => this.keyContainer?.focus(), 0);
     }
     
     loadDocuments() {
@@ -159,6 +156,13 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
 
     onKeyDown(event: KeyboardEvent) {
         if (!this.dataSource.data?.length) return;
+
+        // Initialize selection if none exists
+        if (this.currentRowIndex === -1) {
+            this.currentRowIndex = 0; // Select first row
+            event.preventDefault();
+            return;
+        }
 
         if (event.key === 'ArrowDown') {
             this.currentRowIndex =
