@@ -17,6 +17,7 @@ import { DocumentPrintComponent } from "../document-print/document-print.compone
         CommonModule,
         MaterialModule],
     templateUrl: "./document-list.component.html",
+    styleUrls: ['./document-list.component.css']
 })
 export class DocumentListComponent implements OnInit, AfterViewInit {
     @ViewChild(MatSort) sort!: MatSort;
@@ -38,6 +39,7 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
         'actions'
     ]
 
+    currentRowIndex = -1;
 
     ngOnInit() {
         this.loadDocuments();
@@ -88,7 +90,7 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
           const fileUrl = `http://localhost:3000${doc.filePath}`; 
           window.open(fileUrl, '_blank'); // Opens the file in a new browser tab
         } else {
-          alert('No file attached or file URL not set.');
+            alert('No file attached or file URL not set.');
         }
     }
 
@@ -143,5 +145,30 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
         
         const parsedDate = new Date(date);
         return parsedDate.toLocaleDateString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    onKeyDown(event: KeyboardEvent) {
+        if (!this.dataSource.data?.length) return;
+
+        // Initialize selection if none exists
+        if (this.currentRowIndex === -1) {
+            this.currentRowIndex = 0; // Select first row
+            event.preventDefault();
+            return;
+        }
+        if (event.key === 'ArrowDown') {
+            this.currentRowIndex =
+                (this.currentRowIndex + 1) % this.dataSource.data.length;
+            event.preventDefault();
+        } else if (event.key === 'ArrowUp') {
+            this.currentRowIndex =
+                (this.currentRowIndex - 1 + this.dataSource.data.length) %
+                this.dataSource.data.length;
+            event.preventDefault();
+        }
+    }
+
+    isRowSelected(row: DocumentData): boolean {
+        return this.dataSource.data.indexOf(row) === this.currentRowIndex;
     }
 }
