@@ -103,7 +103,10 @@
         <input matInput [matDatepicker]="pickerDueDate" formControlName="dueDate" />
         <mat-datepicker-toggle matSuffix [for]="pickerDueDate"></mat-datepicker-toggle>
         <mat-datepicker #pickerDueDate></mat-datepicker>
-      </mat-form-field>
+    </mat-form-field>
+    <mat-error *ngIf="form.errors?.['dueDateBeforeRegDate']" class="error-message">
+        Срок исполнения не может быть раньше даты регистрации!
+    </mat-error>
 
       <div class="toggles-group">
         <mat-slide-toggle formControlName="isAccessible">Доступ</mat-slide-toggle>

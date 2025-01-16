@@ -72,8 +72,8 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
         // popupMode: 0 - Add, 1 - Edit
         const dialogWindow = this.dialog.open(DocumentFormComponent,
         {
-            width: '600px',
-            height: '600px',
+            width: '1000px',
+            height: '800px',
         });
         dialogWindow.componentInstance.popupMode = popupMode;
         dialogWindow.componentInstance.documentId = doc?.id ?? null;
