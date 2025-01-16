@@ -17,10 +17,12 @@ import { DocumentPrintComponent } from "../document-print/document-print.compone
         CommonModule,
         MaterialModule],
     templateUrl: "./document-list.component.html",
+    styleUrls: ['./document-list.component.css']
 })
 export class DocumentListComponent implements OnInit, AfterViewInit {
     @ViewChild(MatSort) sort!: MatSort;
     @ViewChild(MatPaginator) paginator!: MatPaginator;
+    @ViewChild('keyContainer') keyContainer!: HTMLElement;
     protected readonly documentService = inject(DocumentService);
     protected readonly dialog = inject(MatDialog);
     
@@ -38,6 +40,7 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
         'actions'
     ]
 
+    currentRowIndex = -1;
 
     ngOnInit() {
         this.loadDocuments();
@@ -45,6 +48,8 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit(): void {
         this.dataSource.sort = this.sort;
+        // Auto-focus the container so ArrowUp/ArrowDown work immediately
+        setTimeout(() => this.keyContainer?.focus(), 0);
     }
     
     loadDocuments() {
@@ -84,11 +89,18 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     
     openFile(doc: DocumentData): void {
         if (doc.filePath) {
-          // Construct the full URL to the file
-          const fileUrl = `http://localhost:3000${doc.filePath}`; 
-          window.open(fileUrl, '_blank'); // Opens the file in a new browser tab
+            if (doc.filePath.startsWith('data:')) {
+                const newWindow = window.open();
+                if (newWindow) {
+                    newWindow.document.write(
+                        '<iframe width="100%" height="100%" src="' + doc.filePath + '"></iframe>'
+                    );
+                }
+            } else {
+                window.open(doc.filePath, '_blank');
+            }
         } else {
-          alert('No file attached or file URL not set.');
+            alert('No file attached or file URL not set.');
         }
     }
 
@@ -143,5 +155,24 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
         
         const parsedDate = new Date(date);
         return parsedDate.toLocaleDateString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    onKeyDown(event: KeyboardEvent) {
+        if (!this.dataSource.data?.length) return;
+
+        if (event.key === 'ArrowDown') {
+            this.currentRowIndex =
+                (this.currentRowIndex + 1) % this.dataSource.data.length;
+            event.preventDefault();
+        } else if (event.key === 'ArrowUp') {
+            this.currentRowIndex =
+                (this.currentRowIndex - 1 + this.dataSource.data.length) %
+                this.dataSource.data.length;
+            event.preventDefault();
+        }
+    }
+
+    isRowSelected(row: DocumentData): boolean {
+        return this.dataSource.data.indexOf(row) === this.currentRowIndex;
     }
 }

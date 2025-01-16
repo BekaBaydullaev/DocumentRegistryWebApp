@@ -7,74 +7,86 @@
     </button>
   
   </div>
-<table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8" style="width:100%;">
+<div
+  style="outline: none;"
+  tabindex="0"
+  (keydown)="onKeyDown($event)"
+  #keyContainer
+>
+  <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8" style="width:100%;">
 
-  <!-- File Column (clickable) -->
-  <ng-container matColumnDef="file">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>Файл</th>
-    <td mat-cell *matCellDef="let doc">
-      <!-- We can use a button or a hyperlink. -->
-      <!-- If doc.fileUrl is a direct link to the file, you can do an anchor tag. -->
-      <button mat-button color="primary" (click)="openFile(doc)">
-        Просмотр
-      </button>
-    </td>
-  </ng-container>
-
-  <!-- Reg Number -->
-  <ng-container matColumnDef="regNumber">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>Рег № </th>
-    <td mat-cell *matCellDef="let doc"> {{ doc.regNumber }} </td>
-  </ng-container>
-
-  
-  <!-- Reg Date -->
-  <ng-container matColumnDef="regDate">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Дата рег</th>
+    <!-- File Column (clickable) -->
+    <ng-container matColumnDef="file">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Файл</th>
       <td mat-cell *matCellDef="let doc">
-          {{ doc.regDate | date: 'yyyy-MM-dd' }}
-        </td>
+        <!-- We can use a button or a hyperlink. -->
+        <!-- If doc.fileUrl is a direct link to the file, you can do an anchor tag. -->
+        <button mat-button color="primary" (click)="openFile(doc)">
+          Просмотр
+        </button>
+      </td>
     </ng-container>
-    
-    
-    <!-- docNumber -->
-    <ng-container matColumnDef="docNumber">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>№ Исх. док-та </th>
-      <td mat-cell *matCellDef="let doc"> {{ doc.docNumber }} </td>
+
+    <!-- Reg Number -->
+    <ng-container matColumnDef="regNumber">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Рег № </th>
+      <td mat-cell *matCellDef="let doc"> {{ doc.regNumber }} </td>
     </ng-container>
-  
-      <!-- docDate -->
-      <ng-container matColumnDef="docDate">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Дата исх. док-та </th>
-          <td mat-cell *matCellDef="let doc"> {{ doc.docDate | date: 'yyyy-MM-dd'  }} </td>
+
+    
+    <!-- Reg Date -->
+    <ng-container matColumnDef="regDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Дата рег</th>
+        <td mat-cell *matCellDef="let doc">
+            {{ doc.regDate | date: 'yyyy-MM-dd' }}
+          </td>
+      </ng-container>
+      
+      
+      <!-- docNumber -->
+      <ng-container matColumnDef="docNumber">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>№ Исх. док-та </th>
+        <td mat-cell *matCellDef="let doc"> {{ doc.docNumber }} </td>
+      </ng-container>
+    
+        <!-- docDate -->
+        <ng-container matColumnDef="docDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Дата исх. док-та </th>
+            <td mat-cell *matCellDef="let doc"> {{ doc.docDate | date: 'yyyy-MM-dd'  }} </td>
+        </ng-container>
+
+    <!-- Correspondent -->
+    <ng-container matColumnDef="correspondent">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Корреспондент</th>
+      <td mat-cell *matCellDef="let doc"> {{ doc.correspondent }} </td>
+    </ng-container>
+
+      <!-- subject -->
+      <ng-container matColumnDef="subject">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Тема </th>
+          <td mat-cell *matCellDef="let doc"> {{ doc.subject }} </td>
       </ng-container>
 
-  <!-- Correspondent -->
-  <ng-container matColumnDef="correspondent">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>Корреспондент</th>
-    <td mat-cell *matCellDef="let doc"> {{ doc.correspondent }} </td>
-  </ng-container>
 
-    <!-- subject -->
-    <ng-container matColumnDef="subject">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Тема </th>
-        <td mat-cell *matCellDef="let doc"> {{ doc.subject }} </td>
+    <!-- Печатать -->
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Действия</th>
+      <td mat-cell *matCellDef="let doc">
+        <button mat-button color="primary" (click)="openPrintDialog(doc)">Печать</button>
+        <button mat-button color="warn" (click)="deleteDocument(doc.id)">Delete</button>
+      </td>
     </ng-container>
 
 
-  <!-- Печатать -->
-
-  <ng-container matColumnDef="actions">
-    <th mat-header-cell *matHeaderCellDef>Действия</th>
-    <td mat-cell *matCellDef="let doc">
-      <button mat-button color="primary" (click)="openPrintDialog(doc)">Печать</button>
-      <button mat-button color="warn" (click)="deleteDocument(doc.id)">Delete</button>
-    </td>
-  </ng-container>
-
-
-  <!-- Header Row -->
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <!-- Data Row -->
-  <tr mat-row (dblclick)="editDocument(row)" *matRowDef="let row; columns: displayedColumns;"></tr>
-</table>
+    <!-- Header Row -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <!-- Data Row -->
+    <tr
+      mat-row
+      (dblclick)="editDocument(row)"
+      *matRowDef="let row; columns: displayedColumns;"
+      [class.selected]="isRowSelected(row)"
+    ></tr>
+  </table>
+</div>
