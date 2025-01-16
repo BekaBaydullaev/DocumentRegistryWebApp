@@ -1,119 +1,136 @@
 <h2 mat-dialog-title>Реквезиты Входящего Документа</h2>
-<mat-dialog-content>
-  <form [formGroup]="form" class="grid grid-cols-1 gap-4">
-  <!-- Рег. № -->
-  <mat-form-field appearance="fill">
-    <mat-label>Рег. №</mat-label>
-    <input matInput formControlName="regNumber" />
-    <mat-error *ngIf="form.get('regNumber')?.hasError('required')">
-      Поле обязательно для заполнения.
-    </mat-error>
-    <mat-error *ngIf="form.get('regNumber')?.hasError('noDigit')">
-      Номер не может состоять только из букв/символов (должна быть цифра).
-    </mat-error>
-  </mat-form-field>
-  <!-- Дата рег. -->
-  <mat-form-field appearance="fill">
-    <mat-label>Дата рег.</mat-label>
-    <input matInput [matDatepicker]="pickerRegDate" formControlName="regDate" />
-    <mat-datepicker-toggle matSuffix [for]="pickerRegDate"></mat-datepicker-toggle>
-    <mat-datepicker #pickerRegDate></mat-datepicker>
-    <mat-error *ngIf="form.get('regDate')?.hasError('required')">
-      Поле обязательно для заполнения.
-    </mat-error>
-  </mat-form-field>
-  <!-- № исх. док-та -->
-  <mat-form-field appearance="fill">
-    <mat-label>№ исх. док-та</mat-label>
-    <input matInput formControlName="docNumber" />
-    <mat-error *ngIf="form.get('docNumber')?.hasError('noDigit')">
-      Номер не может состоять только из букв/символов (должна быть цифра).
-    </mat-error>
-  </mat-form-field>
-    <mat-form-field appearance="fill">
-        <mat-label>Дата исх. док-та</mat-label>
-        <input matInput [matDatepicker]="pickerDocDate" formControlName="docDate">
-        <mat-datepicker-toggle matSuffix [for]="pickerDocDate"></mat-datepicker-toggle>
-        <mat-datepicker #pickerDocDate></mat-datepicker>
-        <mat-error *ngIf="form.get('docDate')?.hasError('futureDate')">
-          Дата не может быть в будущем
-        </mat-error>
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>Форма доставки</mat-label>
-      <mat-select formControlName="deliveryType">
-        <mat-option *ngFor="let type of deliveryTypes" [value]="type">
-          {{ type }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-        <mat-label>Форма доставки</mat-label>
-        <mat-select formControlName="correspondent">
-          <mat-option *ngFor="let type of corresponendsList" [value]="type">
-            {{ type }}
-          </mat-option>
-        </mat-select>
-    </mat-form-field>
-  <!-- Тема -->
-  <mat-form-field appearance="fill">
-    <mat-label>Тема</mat-label>
-    <input matInput formControlName="subject" />
-    <mat-hint align="end">{{ form.get('subject')?.value?.length || 0 }}/100</mat-hint>
-    <mat-error *ngIf="form.get('subject')?.hasError('required')">
-      Поле обязательно для заполнения.
-    </mat-error>
-    <mat-error *ngIf="form.get('subject')?.hasError('maxlength')">
-      Максимальная длина 100 символов.
-    </mat-error>
-  </mat-form-field>
-  <!-- Описание -->
-  <mat-form-field appearance="fill">
-    <mat-label>Описание</mat-label>
-    <textarea matInput formControlName="description" rows="3"></textarea>
-    <mat-hint align="end">{{ form.get('description')?.value?.length || 0 }}/1000</mat-hint>
-    <mat-error *ngIf="form.get('description')?.hasError('maxlength')">
-      Максимальная длина 1000 символов.
-    </mat-error>
-  </mat-form-field>
-  <!-- Срок исполнения -->
-  <div *ngIf="form.errors?.['dueDateBeforeRegDate']" class="error-message">
-    Срок исполнения не может быть раньше даты регистрации!
-  </div>
-  <mat-form-field appearance="fill">
-    <mat-label>Срок исполнения</mat-label>
-    <input matInput [matDatepicker]="pickerDueDate" formControlName="dueDate" />
-    <mat-datepicker-toggle matSuffix [for]="pickerDueDate"></mat-datepicker-toggle>
-    <mat-datepicker #pickerDueDate></mat-datepicker>
-  </mat-form-field>
-    <mat-slide-toggle formControlName="isAccessible">
-        Доступ 
-    </mat-slide-toggle>
-    <mat-slide-toggle formControlName="isUnderControl">
-        Контроль
-    </mat-slide-toggle>
-    <div>
-        <label>Файл (PDF, Doc, Docx до 1МБ)</label>
-      
-        <!-- Existing File Display -->
-        <div *ngIf="form.value.fileName">
-          <p><strong>Файл:</strong> {{ form.value.fileName }}</p>
-          <a [href]="'http://localhost:3000' + form.value.filePath" target="_blank">Просмотр файла</a>
-        </div>
-      
-        <!-- File Upload Input -->
-        <input type="file" (change)="onFileSelected($event)" />
-      
-        <!-- Error Message -->
-        <p *ngIf="fileError" style="color: red;">{{ fileError }}</p>
+<mat-dialog-content class="form-container">
+  <form [formGroup]="form" class="form-grid">
+    <!-- Registration Section -->
+    <div class="form-section full-width">
+      <h3 class="section-title">Регистрационная информация</h3>
+      <div class="form-grid">
+        <mat-form-field appearance="fill">
+          <mat-label>Рег. №</mat-label>
+          <input matInput formControlName="regNumber" />
+          <mat-error *ngIf="form.get('regNumber')?.hasError('required')">
+            Поле обязательно для заполнения.
+          </mat-error>
+          <mat-error *ngIf="form.get('regNumber')?.hasError('noDigit')">
+            Номер не может состоять только из букв/символов (должна быть цифра).
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Дата рег.</mat-label>
+          <input matInput [matDatepicker]="pickerRegDate" formControlName="regDate" />
+          <mat-datepicker-toggle matSuffix [for]="pickerRegDate"></mat-datepicker-toggle>
+          <mat-datepicker #pickerRegDate></mat-datepicker>
+          <mat-error *ngIf="form.get('regDate')?.hasError('required')">
+            Поле обязательно для заполнения.
+          </mat-error>
+        </mat-form-field>
       </div>
-    <mat-hint *ngIf="fileError" style="color:red;">
-        {{ fileError }}
-    </mat-hint>
+    </div>
+
+    <!-- Document Info Section -->
+    <div class="form-section full-width">
+      <h3 class="section-title">Информация о документе</h3>
+      <div class="form-grid">
+        <mat-form-field appearance="fill">
+          <mat-label>№ исх. док-та</mat-label>
+          <input matInput formControlName="docNumber" />
+          <mat-error *ngIf="form.get('docNumber')?.hasError('noDigit')">
+            Номер не может состоять только из букв/символов (должна быть цифра).
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Дата исх. док-та</mat-label>
+          <input matInput [matDatepicker]="pickerDocDate" formControlName="docDate">
+          <mat-datepicker-toggle matSuffix [for]="pickerDocDate"></mat-datepicker-toggle>
+          <mat-datepicker #pickerDocDate></mat-datepicker>
+          <mat-error *ngIf="form.get('docDate')?.hasError('futureDate')">
+            Дата не может быть в будущем
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Форма доставки</mat-label>
+          <mat-select formControlName="deliveryType">
+            <mat-option *ngFor="let type of deliveryTypes" [value]="type">
+              {{ type }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Корреспондент</mat-label>
+          <mat-select formControlName="correspondent">
+            <mat-option *ngFor="let type of corresponendsList" [value]="type">
+              {{ type }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Content Section -->
+    <div class="form-section full-width">
+      <h3 class="section-title">Содержание</h3>
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Тема</mat-label>
+        <input matInput formControlName="subject" />
+        <mat-hint align="end">{{ form.get('subject')?.value?.length || 0 }}/100</mat-hint>
+        <mat-error *ngIf="form.get('subject')?.hasError('required')">
+          Поле обязательно для заполнения.
+        </mat-error>
+        <mat-error *ngIf="form.get('subject')?.hasError('maxlength')">
+          Максимальная длина 100 символов.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Описание</mat-label>
+        <textarea matInput formControlName="description" rows="3"></textarea>
+        <mat-hint align="end">{{ form.get('description')?.value?.length || 0 }}/1000</mat-hint>
+        <mat-error *ngIf="form.get('description')?.hasError('maxlength')">
+          Максимальная длина 1000 символов.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Additional Info Section -->
+    <div class="form-section full-width">
+      <h3 class="section-title">Дополнительная информация</h3>
+      <mat-form-field appearance="fill">
+        <mat-label>Срок исполнения</mat-label>
+        <input matInput [matDatepicker]="pickerDueDate" formControlName="dueDate" />
+        <mat-datepicker-toggle matSuffix [for]="pickerDueDate"></mat-datepicker-toggle>
+        <mat-datepicker #pickerDueDate></mat-datepicker>
+      </mat-form-field>
+
+      <div class="toggles-group">
+        <mat-slide-toggle formControlName="isAccessible">Доступ</mat-slide-toggle>
+        <mat-slide-toggle formControlName="isUnderControl">Контроль</mat-slide-toggle>
+      </div>
+    </div>
+
+    <!-- File Upload Section -->
+    <div class="file-upload-section full-width">
+      <h3 class="section-title">Прикрепленный файл</h3>
+      <input type="file" (change)="onFileSelected($event)" />
+      
+      <div *ngIf="form.value.fileName" class="file-preview">
+        <p><strong>Файл:</strong> {{ form.value.fileName }}</p>
+        <a mat-button color="primary" [href]="'http://localhost:3000' + form.value.filePath" target="_blank">
+          <mat-icon>visibility</mat-icon>
+          Просмотр файла
+        </a>
+      </div>
+
+      <mat-error *ngIf="fileError">{{ fileError }}</mat-error>
+    </div>
   </form>
 </mat-dialog-content>
+
 <mat-dialog-actions align="end">
-  <button mat-button *ngIf="isSaved" (click)="onPrint()">Печать</button>
   <button mat-button [mat-dialog-close]="true">Закрыть</button>
-  <button type="submit" mat-raised-button color="primary" (click)="onSave()">Сохранить</button>
+  <button mat-raised-button color="primary" (click)="onSave()">Сохранить</button>
+  <button mat-raised-button *ngIf="isSaved" color="accent" (click)="onPrint()">Печать</button>
 </mat-dialog-actions>
