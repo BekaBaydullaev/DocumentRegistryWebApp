@@ -19,10 +19,11 @@
     <ng-container matColumnDef="file">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Файл</th>
       <td mat-cell *matCellDef="let doc">
-        <!-- We can use a button or a hyperlink. -->
-        <!-- If doc.fileUrl is a direct link to the file, you can do an anchor tag. -->
-        <button mat-button color="primary" (click)="openFile(doc)">
-          Просмотр
+        <button mat-icon-button
+                color="primary"
+                (click)="openFile(doc)"
+                *ngIf="doc.filePath">
+          <mat-icon>attach_file</mat-icon>
         </button>
       </td>
     </ng-container>
@@ -74,7 +75,7 @@
       <th mat-header-cell *matHeaderCellDef>Действия</th>
       <td mat-cell *matCellDef="let doc">
         <button mat-button color="primary" (click)="openPrintDialog(doc)">Печать</button>
-        <button mat-button color="warn" (click)="deleteDocument(doc.id)">Delete</button>
+        <button mat-button color="warn" (click)="deleteDocument(doc)">Удалить</button>
       </td>
     </ng-container>
 

@@ -9,6 +9,8 @@ import { MatTableDataSource } from "@angular/material/table";
 import { MatDialog } from "@angular/material/dialog";
 import { DocumentFormComponent } from "../document-form/document-form.component";
 import { DocumentPrintComponent } from "../document-print/document-print.component";
+import { NotificationType } from "../../data/notification-dialog.interface";
+import { NotificationService } from "../../service/notification-dialog.service";
 
 
 @Component({
@@ -24,6 +26,7 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     protected readonly documentService = inject(DocumentService);
     protected readonly dialog = inject(MatDialog);
+    protected readonly notificationService = inject(NotificationService);
     
     clickedRows = new Set<DocumentData>();
     dataSource = new MatTableDataSource<DocumentData>([]);
@@ -55,7 +58,12 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
             next: (docs) => {
                 this.dataSource.data = docs;
               }, 
-            error: (err) => console.error('Failed to load documents', err)
+            error: (err) => 
+                this.notificationService.showNotification(
+                    NotificationType.Error,
+                    'Ошибка при загрузке документов: ' + err,
+                    'Ошибка'
+                  )
         });
     }
 
@@ -90,7 +98,11 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
           const fileUrl = `http://localhost:3000${doc.filePath}`; 
           window.open(fileUrl, '_blank'); // Opens the file in a new browser tab
         } else {
-            alert('No file attached or file URL not set.');
+            this.notificationService.showNotification(
+                NotificationType.Error,
+                'Нет соответствующего документа: ',
+                'Ошибка'
+              );
         }
     }
 
@@ -105,19 +117,35 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     }
       
 
-    deleteDocument(id: number | undefined) {
-        if (!id) return;
-        if (confirm('Are you sure you want to delete this document?')) {
-            this.documentService.deleteDocument(id).subscribe({
-            next: (res) => {
-                console.log('Delete success', res);
-                // reload the list
-                this.loadDocuments();
+    deleteDocument(doc: DocumentData) {
+        if (!doc.id) return;
+      
+        this.notificationService.showConfirmation(
+          `Вы уверены, что хотите удалить документ "${doc.subject}"?`,
+          'Подтвердите удаление'
+        ).subscribe((confirmed: boolean) => {
+          if (!confirmed) return;
+      
+          this.documentService.deleteDocument(doc.id!).subscribe({
+            next: () => {
+              this.notificationService.showNotification(
+                NotificationType.Success,
+                `Документ "${doc.subject}" успешно удалён.`,
+                'Успех'
+              );
+              this.loadDocuments();
             },
-            error: (err) => console.error('Delete error', err)
-            });
-        }
-    }
+            error: (err) => {
+              this.notificationService.showNotification(
+                NotificationType.Error,
+                `Ошибка при удалении документа "${doc.subject}": ` + err,
+                'Ошибка'
+              );
+            }
+          });
+        });
+      }
+      
 
     prepareDocumentDataForPrint(doc: DocumentData): any {
         const formValues = doc;

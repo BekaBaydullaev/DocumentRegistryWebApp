@@ -1,0 +1,38 @@
+<div class="notification-dialog-container" [ngStyle]="{'background-color': getBackgroundColor()}">
+  <div class="header">
+    <div class="notification-icon" [ngStyle]="{'background-color': getBackgroundColor()}">
+      <mat-icon [ngStyle]="{'color': getTypeColor()}">{{ getIconName() }}</mat-icon>
+    </div>
+    <span [ngStyle]="{'color': getTypeColor()}">
+      {{ data.header || (data.type | titlecase) }}
+    </span>
+  </div>
+
+  <div class="message">
+    {{ data.message }}
+  </div>
+
+  <div class="actions">
+    <ng-container *ngIf="showConfirmButtons(); else closeButton">
+      <button mat-stroked-button (click)="onCancel()">
+        <mat-icon>close</mat-icon>
+        Cancel
+      </button>
+      <button 
+        mat-raised-button 
+        color="warn"
+        (click)="onConfirm()">
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button>
+    </ng-container>
+    <ng-template #closeButton>
+      <button 
+        mat-raised-button 
+        [ngStyle]="{'background-color': getTypeColor(), 'color': '#ffffff'}"
+        (click)="onClose()">
+        OK
+      </button>
+    </ng-template>
+  </div>
+</div>
