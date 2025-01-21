@@ -8,6 +8,8 @@ import { dateNotInFutureValidator } from '../../shared-components/custom-validat
 import { DocumentPrintComponent } from '../document-print/document-print.component';
 import { MatDialog } from '@angular/material/dialog';
 import { DocumentData } from '../../data/document-data.interface';
+import { NotificationService } from '../../service/notification-dialog.service';
+import { NotificationType } from '../../data/notification-dialog.interface';
 
 @Component({
   selector: 'app-document-form',
@@ -29,6 +31,7 @@ export class DocumentFormComponent implements OnInit {
   protected readonly documentService = inject(DocumentService);
   protected readonly formBuilder = inject(FormBuilder);
   protected readonly dialog = inject(MatDialog);
+  protected readonly notificationService = inject(NotificationService);
 
   isSaved?: boolean;
   currentDate!: Date;
@@ -146,29 +149,41 @@ export class DocumentFormComponent implements OnInit {
   createDocument() {
     this.documentService.addDocument(this.form.value).subscribe({
       next: (res) => {
-        console.log('Document created:', res);
         this.isSaved = true;
-        alert('Документ успешно сохранён!');
+        this.notificationService.showNotification(
+          NotificationType.Success,
+          'Документ успешно сохранён!',
+          'Успех'
+        );
         this.onClose();
       },
       error: (err) => {
-        console.error('Error creating document:', err);
-        alert('Ошибка при сохранении документа');
+        this.notificationService.showNotification(
+          NotificationType.Error,
+          'Ошибка при сохранении документа: ' + err,
+          'Ошибка'
+        );
       }
     });
   }
 
   updateDocument() {
     this.documentService.updateDocument(this.documentId!, this.form.value).subscribe({
-      next: (res) => {
-        console.log('Document updated:', res);
+      next: (message) => {
         this.isSaved = true;
-        alert('Документ успешно обновлён!');
+        this.notificationService.showNotification(
+          NotificationType.Success,
+          'Документ успешно обновлён!',
+          'Успех'
+        );
         this.onClose();
       },
       error: (err) => {
-        console.error('Error updating document:', err);
-        alert('Ошибка при обновлении документа');
+        this.notificationService.showNotification(
+          NotificationType.Error,
+          'Ошибка при обновлении документа: ' + err,
+          'Ошибка'
+        );
       }
     });
   }
